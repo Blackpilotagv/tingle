@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trading Bot Dashboard</title>
+     <!-- <link rel="stylesheet" href="{{url_for ('static',filename='css/style.css') }}"> -->
+     <link rel="stylesheet" href="D:\VS Code\treading bot\static\css\style.css">
+   <style>
+        #stock-preview { margin: 10px 20px; font-size: 14px; color: #444; }
+        #stock-list { list-style: none; padding: 0; margin: 0; }
+        #stock-list li { padding: 6px 10px; margin: 5px 0; background: #f2f2f2; border-radius: 4px; }
+    </style>
+
+</head>
+<body>
+    <!-- splash screen -->
+    <div id="splash"><img src="{{url_for ('static',filename='images/splash image.png') }}" alt="no image"></div>
+    
+    <!-- navigation bar -->
+    <nav>
+        <div class="nav-left">
+            <button>Access Key</button>
+            
+            <!-- status and balance -->
+            <div class="nav-status">
+                <p>Bot Status: <span id="bot-status">Stopped</span></p>
+                <p>Balance: <span id="account-balance">₹0.00</span></p>
+            
+            </div>
+        </div>
+        
+        <div class="nav-middle">Tingle</div>
+        
+        <!-- notification area -->
+        <div class="nav-right">Notification</div>
+    </nav>
+
+    <!-- Search Bar -->
+    <div class="search">
+        <input type="text" id="stock-input" class="search__input" placeholder="Enter Stock name" oninput="showPreview()">
+    </div>
+
+    <!-- Preview typed stock with Add button -->
+    <div id="stock-preview">Type a stock name above...</div>
+
+    <!-- Added Stocks -->
+    <div class="added-stock">
+        <h3>Added Stock</h3>
+       
+    </div>
+
+    <!-- added stock list -->
+     <div>
+            <ul id="stock-list">
+                <li><a href=""></a></li>
+        </ul>
+        </div>
+    <script>
+        // Splash screen logic
+        setTimeout(function() { document.getElementById('splash').style.display = 'none'; }, 1500);
+
+        // Show preview with Add button
+        function showPreview() {
+            let input = document.getElementById("stock-input").value.trim();
+            let preview = document.getElementById("stock-preview");
+            preview.innerHTML = "";
+
+            if (input) {
+                let span = document.createElement("span");
+                span.textContent = input + " ";
+
+                let addBtn = document.createElement("button");
+                addBtn.textContent = "Add";
+                addBtn.onclick = function() { addStock(input); };
+
+                preview.appendChild(span);
+                preview.appendChild(addBtn);
+            } else {
+                preview.textContent = "Type a stock name above...";
+            }
+        }
+
+        // Add stock to list (and submit form to backend)
+        function addStock(stockName) {
+            fetch("/", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "stock_name=" + encodeURIComponent(stockName)
+            }).then(() => {
+                let li = document.createElement("li");
+                let link = document.createElement("a");
+                link.href = "/stock/" + encodeURIComponent(stockName);
+                link.textContent = stockName;
+                li.appendChild(link);
+                document.getElementById("stock-list").appendChild(li);
+
+                document.getElementById("stock-input").value = "";
+                document.getElementById("stock-preview").textContent = "Type a stock name above...";
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tingle login</title>
+    <style>
+       /* login page css styles */
+
+ body{
+display: flex;
+justify-content: center;
+align-items: center;
+background-image: radial-gradient(circle, #58a4a6, #539698, #4d898a, #487b7c, #426e6f);
+}
+
+.main-login{
+    height: 420px;
+    width: 390px;
+    background-color: #e6d2b4;
+    display: block;
+    border-radius: 10px;
+    align-items: center;
+    margin-top: 100px;
+}
+
+.reg-login{
+     height: 430px;
+    width: 390px;
+    background-color: #e6d2b4;
+    display: none;
+    border-radius: 10px;
+    align-items: center;
+    margin-top: 100px;
+}
+
+.forgot-login{
+    height: 420px;
+    width: 390px;
+    background-color: #e6d2b4;
+    display: none;
+    border-radius: 10px;
+    align-items: center;
+    margin-top: 100px;
+}
+
+.form{
+    width: 390px;
+    height: 280px;
+    background-color: #ede7e3;
+    display: block;
+    justify-items: center;
+    align-items: center;
+}
+
+input{
+     
+    font-family: inherit;
+    font-size: inherit;
+    background-color: #f4f2f2;
+    color: #646464;
+    padding: 0.7rem 1rem;
+    border-radius: 30px;
+    width: 14em;
+    transition: all ease-in-out .5s;
+    margin: 7px;
+    border: none;
+
+}
+.user-name{
+    margin-top: 50px;
+}
+
+.input-logo{
+    height: 70px;
+    width: 390px;
+    background-color: #284a49;
+    font-size: 50px;
+    font-weight: bold;
+    align-content: center;
+    text-align: center;
+    border-radius: 10px;
+    color: #f8f3f2;
+}
+
+.login-button{
+    font-family: inherit;
+    font-size: inherit;
+    background-color: #f4f2f2;
+    border: none;
+    color: #110101;
+    padding: 0.7rem 1rem;
+    border-radius: 30px;
+    width: 14em;
+    transition: all ease-in-out .5s;
+    margin: 7px;
+    margin-left: 22px;
+}
+
+.forgot{
+    font-size: 13px;
+    padding-left: 170px;
+    color: #08b39a;
+    text-decoration: none;
+}
+
+.new-register{
+    font-size: 20px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    text-decoration: none;
+    margin-left: 120px;
+    color: black;
+}
+
+button {
+    font-family: inherit;
+    font-size: inherit;
+    background-color: #f4f2f2;
+    border: none;
+    color: #110101;
+    padding: 0.7rem 1rem;
+    border-radius: 30px;
+    width: 14em;
+    transition: all ease-in-out .5s;
+    margin: 7px;
+    margin-left: 85px;
+    border-bottom: 15px;
+}
+
+.resend{
+    width: 8em;
+    border: none;
+    margin-left: 150px;
+    border-radius: 10px;
+}
+
+.back{
+    font-size: 20px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    text-decoration: none;
+    margin-left: 175px;
+    color: black;
+}
+
+.register-button{
+        font-family: inherit;
+    font-size: inherit;
+    background-color: #f4f2f2;
+    border: none;
+    color: #110101;
+    padding: 0.7rem 1rem;
+    border-radius: 30px;
+    width: 14em;
+    transition: all ease-in-out .5s;
+    margin: 7px;
+    margin-left: 80px;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+      
+        <!-- login container -->
+
+   <div class="main-login" id="main-login">
+    <div class="input-logo">Tingle</div>
+    <div class="form">
+    <form action="/login" method="post">
+          <input type="text" placeholder="Enter user name" class="user-name" name="username" required><br>
+          <input type="password" placeholder="Enter password" class="password" name="password" required><br>
+          <a onclick="goforgot(); return false; " class="forgot">Forgot password</a><br>
+          <button class="login-button">login</button>
+          </div>
+    <br>
+    <button onclick="goreg()" >New registation</button>
+  </div>
+    </form>
+    
+    <!-- new regitation container -->
+
+
+<div class="reg-login" id="reg-login">
+    <div class="input-logo">Tingle</div>
+    <div class="form">
+    <form action="/register" method="post">
+          <input type="text" placeholder="Enter user name" class="user-name" name="username" required><br>
+          <input type="password" placeholder="Enter password" class="password" name="password" required><br>
+          <input type="password" placeholder="Confirm password" name="confirm" required><br>
+          <input type="number" placeholder="Enter phone number" name="phone" required><br>
+           <br>
+    <button class="register-button">Register</button>
+    </form>
+    </div>
+   
+   <button onclick="gologin()" >home</button>
+  </div>
+
+       <!-- forgot password container -->
+
+ <div class="forgot-login" id="forgot-login">
+    <div class="input-logo">Tingle</div>
+    <div class="form">
+    <form action="/forgot_password" method="post">
+          <input type="number" placeholder="Enter phone number" class="phonenumber"><br>
+          <input type="password" placeholder="Enter OTP"><br>
+          <button class="resend">resend</button><br>
+          <button class="login-button">Submit</button>
+    </form>
+    </div>
+    <br>
+    <button onclick="gologin()" >home</button>
+</div>
+
+
+</div>
+
+<script>
+
+      function goreg(){
+             document.getElementById('main-login').style.display = "none";
+             document.getElementById('forgot-login').style.display = "none";
+             document.getElementById('reg-login').style.display = "block";
+
+      }
+      function goforgot(){
+             document.getElementById('main-login').style.display = "none";
+             document.getElementById('forgot-login').style.display = "block";
+             document.getElementById('reg-login').style.display = "none";
+
+      }
+      function gologin(){
+             document.getElementById('main-login').style.display = "block";
+             document.getElementById('forgot-login').style.display = "none";
+             document.getElementById('reg-login').style.display = "none";
+
+      }
+
+
+
+</script>
+  
+</body>
+</html>

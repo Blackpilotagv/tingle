@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ stock }} - Stock Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav>
+        <!-- navigation bar logo -->
+        
+        <div class="nav-left1">
+            <img src="{{ url_for('static', filename='images/bot logo.png') }}" alt="Logo" class="nav-logo">
+        </div>
+
+        <!-- nav title -->
+        <div class="nav-middle">Tingle</div>
+         
+         <!-- trade set dropdown -->
+
+        <div class="nav-right">
+            <div class="dropdown">
+                <button class="botton">Trade Set ⏷</button>
+                <div class="dropdown-content" style="width: 300px; padding: 15px;">
+
+                    <!-- Bot control on and off -->
+                    <div class="section">
+                        <h3>Bot Status</h3>
+                        <p>Current: <span id="bot-status-dropdown">Stopped</span></p>
+                        <button class="btn btn-start" onclick="startBot()">Start Bot</button>
+                        <button class="btn btn-stop" onclick="stopBot()">Stop Bot</button>
+                    </div>
+                      
+                      <!-- strategy slection --> 
+
+                    <div class="section">
+                        <h3>Strategy</h3>
+                        <select id="strategy" class="input-box">
+                            <option value="candlestick">Candlestick Pattern</option>
+                            <option value="moving-average">Moving Average</option>
+                            <option value="rsi">RSI Strategy</option>
+                        </select>
+                    </div>
+                       
+                       <!-- set stop loss and gain stop setup -->
+                       
+                    <div class="section">
+                        <h3>Risk Management</h3>
+                        <label>Capital Allocation (₹):</label>
+                        <input type="number" id="capital" class="input-box" placeholder="e.g., 5000">
+                        <label>Stop Loss (%):</label>
+                        <input type="number" id="stoploss" class="input-box" placeholder="e.g., 2">
+                        <label>Take Profit (%):</label>
+                        <input type="number" id="takeprofit" class="input-box" placeholder="e.g., 5">
+                    </div>
+
+                    <!-- money management datas -->
+
+                    <div class="section">
+                        <h3>Account Summary</h3>
+                        <p>💰 Balance: <span id="account-balance-dd">₹0.00</span></p>
+                        <p>📈 Margin Used: <span id="margin-used">0%</span></p>
+                        <p>📊 Running Trades: <span id="running-trades">0</span></p>
+                    </div>
+                </div>
+            </div>
+           <!-- back button -->
+            <div class="nav-right1">
+                <a href="{{ url_for('index') }}">⬅ Back</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Stock chart Content -->
+    <div class="main">
+        <h1>{{ stock }}</h1>
+        <div id="chartContainer" style="height: 400px; width: 100%;"></div>
+    </div>
+
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script>
+        fetch('/get_candles/{{ stock }}')
+            .then(response => response.json())
+            .then(data => {
+                var dataPoints = data.map(item => ({
+                    x: new Date(item.t),
+                    y: [item.o, item.h, item.l, item.c]
+                }));
+
+                var chart = new CanvasJS.Chart("chartContainer", {
+                    title: { text: "{{ stock }} Chart" },
+                    axisY: { title: "Price" },
+                    data: [{
+                        type: "candlestick",
+                        yValueFormatString: "₹##0.00",
+                        dataPoints: dataPoints
+                    }]
+                });
+                chart.render();
+            });
+    </script>
+
+    <!-- Go Button -->
+    <div class="go-button">
+        <button onclick="sendGo()">Take It</button>
+    </div>
+
+    <script>
+        function sendGo() {
+            fetch('/go', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                alert('Approved to Trade!');
+            });
+        }
+    </script>
+</body>
+</html>

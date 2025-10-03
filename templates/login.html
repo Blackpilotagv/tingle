@@ -25,13 +25,14 @@ background-image: radial-gradient(circle, #58a4a6, #539698, #4d898a, #487b7c, #4
 }
 
 .reg-login{
-     height: 430px;
+    height: 420px;
     width: 390px;
     background-color: #e6d2b4;
     display: none;
     border-radius: 10px;
     align-items: center;
     margin-top: 100px;
+
 }
 
 .forgot-login{
@@ -65,6 +66,8 @@ input{
     transition: all ease-in-out .5s;
     margin: 7px;
     border: none;
+    margin-left: 30px;
+    margin-top: 10px;
 
 }
 .user-name{
@@ -94,7 +97,7 @@ input{
     width: 14em;
     transition: all ease-in-out .5s;
     margin: 7px;
-    margin-left: 22px;
+    margin-left: 30px;
 }
 
 .forgot{
@@ -105,11 +108,19 @@ input{
 }
 
 .new-register{
-    font-size: 20px;
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    text-decoration: none;
-    margin-left: 120px;
-    color: black;
+    
+    font-family: inherit;
+    font-size: inherit;
+    background-color: #f4f2f2;
+    border: none;
+    color: #110101;
+    padding: 0.7rem 1rem;
+    border-radius: 30px;
+    width: 14em;
+    transition: all ease-in-out .5s;
+    margin: 7px;
+    margin-left: 45px;
+    border-bottom: 15px;
 }
 
 button {
@@ -143,7 +154,7 @@ button {
 }
 
 .register-button{
-        font-family: inherit;
+     font-family: inherit;
     font-size: inherit;
     background-color: #f4f2f2;
     border: none;
@@ -153,7 +164,9 @@ button {
     width: 14em;
     transition: all ease-in-out .5s;
     margin: 7px;
-    margin-left: 80px;
+    margin-left: 85px;
+    border-bottom: 15px;
+    margin-bottom: 10px;
 }
     </style>
 </head>
@@ -171,8 +184,7 @@ button {
           <a onclick="goforgot(); return false; " class="forgot">Forgot password</a><br>
           <button class="login-button">login</button>
           </div>
-    <br>
-    <button onclick="goreg()" >New registation</button>
+    <button onclick="goreg()" class="register-button">New registation</button>
   </div>
     </form>
     
@@ -183,16 +195,16 @@ button {
     <div class="input-logo">Tingle</div>
     <div class="form">
     <form action="/register" method="post">
-          <input type="text" placeholder="Enter user name" class="user-name" name="username" required><br>
+          <input type="text" placeholder="Enter user name" class="reg-user-name" name="username" required><br>
+          <input type="email" placeholder="Enter Email ID" name="email" required><br>
           <input type="password" placeholder="Enter password" class="password" name="password" required><br>
           <input type="password" placeholder="Confirm password" name="confirm" required><br>
-          <input type="number" placeholder="Enter phone number" name="phone" required><br>
-           <br>
-    <button class="register-button">Register</button>
+          <input type="number" placeholder="Enter phone number" name="phone" required><br> 
+    <button class="new-register">Register</button>
     </form>
     </div>
    
-   <button onclick="gologin()" >home</button>
+ 
   </div>
 
        <!-- forgot password container -->
@@ -207,7 +219,6 @@ button {
           <button class="login-button">Submit</button>
     </form>
     </div>
-    <br>
     <button onclick="gologin()" >home</button>
 </div>
 

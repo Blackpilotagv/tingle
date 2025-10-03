@@ -78,6 +78,7 @@ def register():
     password = request.form["password"]
     confirm = request.form["confirm"]
     phone = request.form["phone"]
+    email = request.form["email"]
 
     if password != confirm:
         flash("Passwords do not match", "danger")
@@ -85,8 +86,8 @@ def register():
 
     conn = get_user_db()
     try:
-        conn.execute("INSERT INTO users (username, password, phone) VALUES (?, ?, ?)", 
-                     (username, password, phone))
+        conn.execute("INSERT INTO users (username, password, phone, email) VALUES (?, ?, ?,?)", 
+                     (username, password, phone, email))
         conn.commit()
         flash("Registration successful! Please login.", "success")
     except sqlite3.IntegrityError:

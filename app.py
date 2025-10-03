@@ -2,7 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import sqlite3
 import urllib.parse
 from datetime import datetime, timedelta
-import random
+import smtplib, ssl, random, string
+from email.mime.text import MIMEText
 
 app = Flask(__name__)
 app.secret_key = "tingle_secret"
@@ -102,6 +103,91 @@ def logout():
     session.pop("username", None)
     flash("You have been logged out.", "info")
     return redirect(url_for("home"))
+
+# ---------------- Email Helper ----------------
+def send_email(to_email, subject, body):
+    sender_email = "tingletrade@gmail.com"
+    sender_password = "jahobigzmiewnbff"  # Create app password in Gmail settings
+
+    msg = MIMEText(body, "plain")
+    msg["Subject"] = subject
+    msg["From"] = sender_email
+    msg["To"] = to_email
+
+    context = ssl.create_default_context()
+    with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        server.starttls(context=context)
+        server.login(sender_email, sender_password)
+        server.sendmail(sender_email, to_email, msg.as_string())
+
+# ---------------- Forgot / Reset Password ----------------
+@app.route("/forgot_password", methods=["POST"])
+def forgot_password():
+    email = request.form.get("email")
+    if not email:
+        flash("Email is required", "danger")
+        return redirect(url_for("home"))
+
+    conn = get_user_db()
+    user = conn.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
+    if not user:
+        conn.close()
+        flash("No account with this email.", "danger")
+        return redirect(url_for("home"))
+
+    # Generate OTP
+    otp = ''.join(random.choices(string.digits, k=6))
+    expiry = datetime.utcnow() + timedelta(minutes=5)
+
+    conn.execute("ALTER TABLE users ADD COLUMN otp TEXT") if "otp" not in [c[1] for c in conn.execute("PRAGMA table_info(users)").fetchall()] else None
+    conn.execute("ALTER TABLE users ADD COLUMN otp_expiry TEXT") if "otp_expiry" not in [c[1] for c in conn.execute("PRAGMA table_info(users)").fetchall()] else None
+
+    conn.execute("UPDATE users SET otp=?, otp_expiry=? WHERE email=?", (otp, expiry.isoformat(), email))
+    conn.commit()
+    conn.close()
+
+    # Save email in session for reset step
+    session["reset_email"] = email
+
+    # Send OTP
+    send_email(email, "Your Tingle OTP", f"Your OTP is {otp}. It will expire in 5 minutes.")
+
+    flash("OTP sent to your email. Please check!", "info")
+    return redirect(url_for("home")+"#forgot")
+
+@app.route("/reset_password", methods=["POST"])
+def reset_password():
+    email = session.get("reset_email")   # get email from session
+    otp = request.form.get("otp")
+    new_password = request.form.get("new_password")
+
+    if not email:
+        flash("Session expired. Please request OTP again.", "danger")
+        return redirect(url_for("home"))
+
+    conn = get_user_db()
+    user = conn.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
+
+    if not user:
+        flash("Invalid request.", "danger")
+        return redirect(url_for("home"))
+
+    # Validate OTP
+    if user["otp"] != otp or datetime.utcnow() > datetime.fromisoformat(user["otp_expiry"]):
+        flash("Invalid or expired OTP.", "danger")
+        return redirect(url_for("home"))
+
+    # Update password & clear OTP
+    conn.execute("UPDATE users SET password=?, otp=NULL, otp_expiry=NULL WHERE email=?", (new_password, email))
+    conn.commit()
+    conn.close()
+
+    # Clear session
+    session.pop("reset_email", None)
+
+    flash("Password reset successful! Please login.", "success")
+    return redirect(url_for("home"))
+
 
 # ---------------- Stock Routes ----------------
 @app.route("/index", methods=["GET", "POST"])

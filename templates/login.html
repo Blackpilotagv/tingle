@@ -209,15 +209,21 @@ button {
 
        <!-- forgot password container -->
 
- <div class="forgot-login" id="forgot-login">
+ <div class="forgot-login" id="forgot">
     <div class="input-logo">Tingle</div>
     <div class="form">
+    <!-- Request OTP -->
     <form action="/forgot_password" method="post">
-          <input type="number" placeholder="Enter phone number" class="phonenumber"><br>
-          <input type="password" placeholder="Enter OTP"><br>
-          <button class="resend">resend</button><br>
-          <button class="login-button">Submit</button>
+      <input type="email" placeholder="Enter Email ID" name="email" required><br>
+      <button class="resend">Send OTP</button>
     </form>
+
+    <!-- Reset Password -->
+  <form action="/reset_password" method="post">
+  <input type="text" placeholder="Enter OTP" name="otp" required><br>
+  <input type="password" placeholder="Enter New Password" name="new_password" required><br>
+  <button class="login-button">Reset Password</button>
+  </form>
     </div>
     <button onclick="gologin()" >home</button>
 </div>
@@ -229,24 +235,32 @@ button {
 
       function goreg(){
              document.getElementById('main-login').style.display = "none";
-             document.getElementById('forgot-login').style.display = "none";
+             document.getElementById('forgot').style.display = "none";
              document.getElementById('reg-login').style.display = "block";
 
       }
       function goforgot(){
              document.getElementById('main-login').style.display = "none";
-             document.getElementById('forgot-login').style.display = "block";
+             document.getElementById('forgot').style.display = "block";
              document.getElementById('reg-login').style.display = "none";
 
       }
       function gologin(){
              document.getElementById('main-login').style.display = "block";
-             document.getElementById('forgot-login').style.display = "none";
+             document.getElementById('forgot').style.display = "none";
              document.getElementById('reg-login').style.display = "none";
 
       }
 
-
+document.addEventListener("DOMContentLoaded", function() {
+  if (window.location.hash === "#forgot") {
+    goforgot();
+  } else if (window.location.hash === "#register") {
+    goreg();   
+  } else {
+    gologin();  
+  }
+});
 
 </script>
   

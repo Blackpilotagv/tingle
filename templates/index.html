@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Trading Bot Dashboard</title>
     <link rel="stylesheet" href="{{url_for ('static',filename='css/style.css') }}"> 
-      <!-- <link rel="stylesheet" href="D:\VS Code\treading bot\static\css\style.css">-->
+      <link rel="stylesheet" href="D:\VS Code\treading bot\static\css\style.css">
    <style>
         #stock-preview { margin: 10px 20px; font-size: 14px; color: #444; }
         #stock-list { list-style: none; padding: 0; margin: 0; }
@@ -72,6 +72,8 @@
                 let addBtn = document.createElement("button");
                 addBtn.textContent = "Add";
                 addBtn.onclick = function() { addStock(input); };
+                addBtn.classList.add("addBtn");
+                document.body.appendChild(addBtn);
 
                 preview.appendChild(span);
                 preview.appendChild(addBtn);

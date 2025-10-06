@@ -104,6 +104,10 @@ def logout():
     flash("You have been logged out.", "info")
     return redirect(url_for("home"))
 
+@app.route('/profile')
+def profile():
+    return render_template('profile.html')
+
 # ---------------- Email Helper ----------------
 def send_email(to_email, subject, body):
     sender_email = "tingletrade@gmail.com"

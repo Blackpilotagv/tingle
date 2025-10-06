@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Trading Bot Dashboard</title>
     <link rel="stylesheet" href="{{url_for ('static',filename='css/style.css') }}"> 
-      <link rel="stylesheet" href="D:\VS Code\treading bot\static\css\style.css">
+       <!--<link rel="stylesheet" href="D:\VS Code\treading bot\static\css\style.css">-->
    <style>
         #stock-preview { margin: 10px 20px; font-size: 14px; color: #444; }
         #stock-list { list-style: none; padding: 0; margin: 0; }
@@ -19,15 +19,19 @@
     <!-- navigation bar -->
     <nav>
         <div class="nav-left">
-            <button>Access Key</button>
-            
+             <div id="profileBtn" style="cursor: pointer; display:block;">
+             <a href="{{ url_for('profile') }}"><img src="{{ url_for('static', filename='images/user profile.png') }}" 
+                 alt="User" width="30" height="30"> </a>
+             <span id="usernameText"></span>
+            </div>
             <!-- status and balance -->
             <div class="nav-status">
                 <p>Bot Status: <span id="bot-status">Stopped</span></p>
                 <p>Balance: <span id="account-balance">₹0.00</span></p>
             
             </div>
-        </div>
+            </div>
+        
         
         <div class="nav-middle">Tingle</div>
         

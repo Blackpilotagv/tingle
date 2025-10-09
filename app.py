@@ -104,9 +104,34 @@ def logout():
     flash("You have been logged out.", "info")
     return redirect(url_for("home"))
 
-@app.route('/profile')
+@app.route('/profile', methods=['GET', 'POST'])
 def profile():
-    return render_template('profile.html')
+    if "username" not in session:
+        flash("Please login first.", "danger")
+        return redirect(url_for("home"))
+
+    username = session["username"]
+    conn = get_user_db()
+    cursor = conn.cursor()
+
+    if request.method == "POST":
+        new_email = request.form["email"]
+        new_phone = request.form["phone"]
+        new_password = request.form["password"]
+
+        cursor.execute("""
+            UPDATE users
+            SET email=?, phone=?, password=?
+            WHERE username=?
+        """, (new_email, new_phone, new_password, username))
+        conn.commit()
+        flash("Profile updated successfully!", "success")
+
+    cursor.execute("SELECT id, username, email, phone, password FROM users WHERE username=?", (username,))
+    user = cursor.fetchone()
+    conn.close()
+
+    return render_template("profile.html", user=user)
 
 # ---------------- Email Helper ----------------
 def send_email(to_email, subject, body):

@@ -19,10 +19,10 @@
     <!-- navigation bar -->
     <nav>
         <div class="nav-left">
-             <div id="profileBtn" style="cursor: pointer; display:block;">
+             <div id="profileBtn" style="cursor: pointer; display:flex; align-items: center; gap: 5px;">
              <a href="{{ url_for('profile') }}"><img src="{{ url_for('static', filename='images/user profile.png') }}" 
-                 alt="User" width="30" height="30"> </a>
-             <span id="usernameText"></span>
+                 alt="User" width="30" height="30"></a>
+             <span id="usernameText">{{ username }}</span>
             </div>
             <!-- status and balance -->
             <div class="nav-status">

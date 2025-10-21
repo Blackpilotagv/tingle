@@ -3,106 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <title>Trading Bot Dashboard</title>
-    <link rel="stylesheet" href="{{url_for ('static',filename='css/style.css') }}"> 
-       <!--<link rel="stylesheet" href="D:\VS Code\treading bot\static\css\style.css">-->
-   <style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
         #stock-preview { margin: 10px 20px; font-size: 14px; color: #444; }
         #stock-list { list-style: none; padding: 0; margin: 0; }
-        #stock-list li { padding: 6px 10px; margin: 5px 0; background: #f2f2f2; border-radius: 4px; }
+        #stock-list li { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 6px 10px; 
+            margin: 5px 0; 
+            background: #f2f2f2; 
+            border-radius: 4px; 
+        }
+        .remove-btn {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            padding: 3px 8px;
+        }
+        .remove-btn:hover {
+            background-color: #d93636;
+        }
+        .addBtn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 3px 8px;
+            cursor: pointer;
+        }
     </style>
-
 </head>
 <body>
-    <!-- splash screen -->
-    <div id="splash"><img src="{{url_for ('static',filename='images/splash image.png') }}" alt="no image"></div>
+    <!-- Splash Screen -->
+    <div id="splash"><img src="{{ url_for('static', filename='images/splash image.png') }}" alt="no image"></div>
     
-    <!-- navigation bar -->
+    <!-- Navigation Bar -->
     <nav>
         <div class="nav-left">
-             <div id="profileBtn" style="cursor: pointer; display:flex; align-items: center; gap: 5px;">
-             <a href="{{ url_for('profile') }}"><img src="{{ url_for('static', filename='images/user profile.png') }}" 
-                 alt="User" width="30" height="30"></a>
-             <span id="usernameText">{{ username }}</span>
+            <div id="profileBtn" style="cursor: pointer; display:flex; align-items: center; gap: 5px;">
+                <a href="{{ url_for('profile') }}">
+                    <img src="{{ url_for('static', filename='images/user profile.png') }}" alt="User" width="30" height="30">
+                </a>
+                <span id="usernameText">{{ username }}</span>
             </div>
-            <!-- status and balance -->
+
+            <!-- Status and Balance -->
             <div class="nav-status">
                 <p>Bot Status: <span id="bot-status">Stopped</span></p>
                 <p>Balance: <span id="account-balance">₹0.00</span></p>
-            
             </div>
-            </div>
-        
-        
+        </div>
         <div class="nav-middle">Tingle</div>
-        
-        <!-- notification area -->
         <div class="nav-right">Notification</div>
     </nav>
 
     <!-- Search Bar -->
     <div class="search">
-        <input type="text" id="stock-input" class="search__input" placeholder="Enter Stock name" oninput="showPreview()">
+        <input type="text" id="stock-input" class="search__input" placeholder="Enter Stock symbol" oninput="showPreview()">
     </div>
 
     <!-- Preview typed stock with Add button -->
-    <div id="stock-preview">Type a stock name above...</div>
+    <div id="stock-preview">Type a stock symbol above...</div>
 
     <!-- Added Stocks -->
     <div class="added-stock">
-        <h3>Added Stock</h3>
-       
+        <h3>Added Stocks</h3>
     </div>
 
-    <!-- added stock list -->
-     <div>
-            <ul id="stock-list">
-                <li><a href=""></a></li>
-        </ul>
-        </div>
-    <script>
-        // Splash screen logic
-        setTimeout(function() { document.getElementById('splash').style.display = 'none'; }, 1500);
+    <!-- Stock List -->
+    <div>
+        <ul id="stock-list"></ul>
+    </div>
 
-        // Show preview with Add button
+    <script>
+        // Hide splash after 1.5s
+        setTimeout(() => document.getElementById('splash').style.display = 'none', 1500);
+
+        // Load saved stocks on page load
+        window.onload = function() {
+            fetch("/get_stocks")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.stocks) {
+                        data.stocks.forEach(stock => addStockToUI(stock));
+                    }
+                });
+        };
+
+        // Show preview input
         function showPreview() {
-            let input = document.getElementById("stock-input").value.trim();
-            let preview = document.getElementById("stock-preview");
+            const input = document.getElementById("stock-input").value.trim();
+            const preview = document.getElementById("stock-preview");
             preview.innerHTML = "";
 
             if (input) {
-                let span = document.createElement("span");
+                const span = document.createElement("span");
                 span.textContent = input + " ";
 
-                let addBtn = document.createElement("button");
+                const addBtn = document.createElement("button");
                 addBtn.textContent = "Add";
-                addBtn.onclick = function() { addStock(input); };
-                addBtn.classList.add("addBtn");
-                document.body.appendChild(addBtn);
+                addBtn.className = "addBtn";
+                addBtn.onclick = () => addStock(input);
 
                 preview.appendChild(span);
                 preview.appendChild(addBtn);
             } else {
-                preview.textContent = "Type a stock name above...";
+                preview.textContent = "Type a stock symbol above...";
             }
         }
 
-        // Add stock to list (and submit form to backend)
-        function addStock(stockName) {
-            fetch("/", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: "stock_name=" + encodeURIComponent(stockName)
-            }).then(() => {
-                let li = document.createElement("li");
-                let link = document.createElement("a");
-                link.href = "/stock/" + encodeURIComponent(stockName);
-                link.textContent = stockName;
-                li.appendChild(link);
-                document.getElementById("stock-list").appendChild(li);
+        // Add stock (saves to DB)
+function addStock(stockName) {
+    const stockSymbol = stockName.trim().toUpperCase();
 
-                document.getElementById("stock-input").value = "";
-                document.getElementById("stock-preview").textContent = "Type a stock name above...";
+    fetch("/add_stock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stock_symbol: stockSymbol })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === "Stock added successfully") {
+            addStockToUI(stockSymbol);
+        } else {
+            alert(data.message);
+        }
+        document.getElementById("stock-input").value = "";
+        document.getElementById("stock-preview").textContent = "Type a stock symbol above...";
+    });
+}
+
+        // Remove stock (from DB + UI)
+        function removeStock(stockSymbol, liElement) {
+            fetch("/remove_stock", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ stock_symbol: stockSymbol })
+            })
+            .then(res => res.json())
+            .then(() => {
+                liElement.remove();
             });
+        }
+
+        // Helper: add stock to UI
+        function addStockToUI(stockSymbol) {
+            const li = document.createElement("li");
+
+            const link = document.createElement("a");
+            link.href = "/stock/" + encodeURIComponent(stockSymbol);
+            link.textContent = stockSymbol;
+
+            const removeBtn = document.createElement("button");
+            removeBtn.textContent = "Remove";
+            removeBtn.className = "remove-btn";
+            removeBtn.onclick = () => removeStock(stockSymbol, li);
+
+            li.appendChild(link);
+            li.appendChild(removeBtn);
+            document.getElementById("stock-list").appendChild(li);
         }
     </script>
 </body>

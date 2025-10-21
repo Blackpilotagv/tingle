@@ -4,12 +4,15 @@ import urllib.parse
 from datetime import datetime, timedelta
 import smtplib, ssl, random, string
 from email.mime.text import MIMEText
+from stock import stock_bp
 
 app = Flask(__name__)
 app.secret_key = "tingle_secret"
 
 USER_DB = "users.db"
 STOCK_DB = "trading_bot.db"
+
+app.register_blueprint(stock_bp)
 
 # ---------------- DB Helpers ----------------
 def get_user_db():
@@ -67,6 +70,7 @@ def login():
 
     if user:
         session["username"] = username
+        session["user_id"] = user["id"] 
         flash("Login successful!", "success")
         return redirect(url_for("index"))
     else:
@@ -239,38 +243,6 @@ def index():
 def stock_page(stock_name):
     stock_name = urllib.parse.unquote(stock_name)
     return render_template("stock.html", stock=stock_name)
-
-# ---------------- API Routes ----------------
-@app.route("/get_candles/<stock>")
-def get_candles(stock):
-    base_price = 100.0 + random.random() * 50
-    candles = []
-    now = datetime.utcnow()
-    for i in range(30):
-        t = now - timedelta(minutes=(30 - i) * 15)
-        open_p = round(base_price + random.uniform(-3, 3), 2)
-        high_p = round(open_p + random.uniform(0, 4), 2)
-        low_p = round(open_p - random.uniform(0, 4), 2)
-        close_p = round(random.uniform(low_p, high_p), 2)
-        candles.append({
-            "t": int(t.timestamp() * 1000),
-            "o": open_p,
-            "h": high_p,
-            "l": low_p,
-            "c": close_p
-        })
-        base_price = close_p
-    return jsonify(candles)
-
-@app.route("/go", methods=["POST"])
-def go():
-    payload = request.get_json() or {}
-    stock = payload.get("stock") or request.form.get("stock")
-    return jsonify({"status": "approved", "stock": stock or None, "message": "Trade approved (simulated)"}), 200
-
-@app.route("/health")
-def health():
-    return "OK", 200
 
 # ---------------- Main ----------------
 if __name__ == "__main__":

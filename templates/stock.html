@@ -75,45 +75,10 @@
     <!-- Stock chart Content -->
     <div class="main">
         <h1>{{ stock }}</h1>
-        <div id="chartContainer" style="height: 400px; width: 100%;"></div>
+        <div id="chartContainer" style="height: 500px; width: 100%;">
+            <canvas id="candleChart"></canvas>
+        </div>
     </div>
 
-    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
-    <script>
-        fetch('/get_candles/{{ stock }}')
-            .then(response => response.json())
-            .then(data => {
-                var dataPoints = data.map(item => ({
-                    x: new Date(item.t),
-                    y: [item.o, item.h, item.l, item.c]
-                }));
-
-                var chart = new CanvasJS.Chart("chartContainer", {
-                    title: { text: "{{ stock }} Chart" },
-                    axisY: { title: "Price" },
-                    data: [{
-                        type: "candlestick",
-                        yValueFormatString: "₹##0.00",
-                        dataPoints: dataPoints
-                    }]
-                });
-                chart.render();
-            });
-    </script>
-
-    <!-- Go Button -->
-    <div class="go-button">
-        <button onclick="sendGo()">Take It</button>
-    </div>
-
-    <script>
-        function sendGo() {
-            fetch('/go', { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                alert('Approved to Trade!');
-            });
-        }
-    </script>
 </body>
 </html>

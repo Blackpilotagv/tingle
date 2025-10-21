@@ -7,6 +7,8 @@ stock_bp = Blueprint('stock_bp', __name__)
 DB_PATH = 'userstocks.db' 
 FINNHUB_API_KEY = "d3p21ipr01quo6o6g38gd3p21ipr01quo6o6g390"
 
+refresh_count = 0
+
 def get_db_connection():
     con = sqlite3.connect(DB_PATH)
     con.row_factory = sqlite3.Row
@@ -69,6 +71,33 @@ def remove_stock():
 
     return jsonify({'message': 'Stock removed successfully'})
 
+#------------find stock details in finnhub-----
+@stock_bp.route("/stock/data/<stock_symbol>")
+def get_price(stock_symbol):
+    global refresh_count
+    refresh_count += 1
+    now = datetime.now().strftime("%H:%M:%S")
+    print(f"{refresh_count} for {stock_symbol.upper()} at {now}")
+
+
+
+    url = f"https://finnhub.io/api/v1/quote?symbol={stock_symbol}&token={FINNHUB_API_KEY}"
+    res = requests.get(url)
+    data = res.json()
+
+    if "c" not in data:
+        return jsonify({"error":"No data found"}),404
+
+    result = {
+        "symbol": stock_symbol.upper(),
+        "current": data.get("c"),
+        "open": data.get("o"),
+        "high": data.get("h"),
+        "low": data.get("l"),
+        "previous_close": data.get("pc")
+    }
+
+    return jsonify(result)
 # ---------------- Stock Page ----------------
 @stock_bp.route("/stock/<symbol>")
 def stock_page(symbol):

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ stock }} - Stock Page</title>
+    <title>{{stock_symbol}} - Stock Page</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -74,11 +74,61 @@
 
     <!-- Stock chart Content -->
     <div class="main">
-        <h1>{{ stock }}</h1>
-        <div id="chartContainer" style="height: 500px; width: 100%;">
-            <canvas id="candleChart"></canvas>
-        </div>
+        <h1 id="symbol-text">{{stock_symbol}}</h1>
+       
     </div>
+<button onclick="getPrice()">Get Price</button>
+<div id="data">
+  
+</div>
+<p id="indicator"></p>
+
+<script>
+async function getPrice() {
+  const stock_symbol = document.getElementById("symbol-text").textContent.trim();
+
+  if (!stock_symbol) {
+    console.error("No stock symbol found!");
+    return;
+  }
+
+  const res = await fetch(`/stock/data/${stock_symbol}`);
+  const data = await res.json();
+
+  console.log("Fetched data", data);
+
+  if (data.error) {
+    document.getElementById("data").innerHTML = `<p>${data.error}</p>`;
+    document.getElementById("indicator").innerText = "Trend Indicator";
+    return;
+  }
+
+  let trendText = "";
+  if (data.current >= data.open) {
+    trendText = "📈 Uptrend";
+    document.getElementById("indicator").style.color = "green";
+  } else {
+    trendText = "📉 Downtrend";
+    document.getElementById("indicator").style.color = "red";
+  }
+  document.getElementById("indicator").innerText = trendText;
+
+  document.getElementById("data").innerHTML = `
+    <div class="card">
+      <h3>${data.symbol}</h3>
+      <p>Current: $${data.current}</p>
+      <p>Open: $${data.open}</p>
+      <p>High: $${data.high}</p>
+      <p>Low: $${data.low}</p>
+      <p>Previous Close: $${data.previous_close}</p>
+    </div>
+  `;
+}
+
+setInterval(getPrice,5000);
+window.onload=getPrice;
+</script>
+     </script>
 
 </body>
 </html>

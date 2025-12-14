@@ -77,6 +77,8 @@
         <h1 id="symbol-text">{{stock_symbol}}</h1>
        
     </div>
+
+    <div id="candleContainer"></div>
 <button onclick="getPrice()">Get Price</button>
 <div id="data">
   
@@ -85,50 +87,81 @@
 
 <script>
 async function getPrice() {
-  const stock_symbol = document.getElementById("symbol-text").textContent.trim();
+    const stock_symbol = document.getElementById("symbol-text").textContent.trim();
 
-  if (!stock_symbol) {
-    console.error("No stock symbol found!");
-    return;
-  }
+    if (!stock_symbol) {
+        console.error("No stock symbol found!");
+        return;
+    }
 
-  const res = await fetch(`/stock/data/${stock_symbol}`);
-  const data = await res.json();
+    const res = await fetch(`/stock/data/${stock_symbol}`);
+    const data = await res.json();
 
-  console.log("Fetched data", data);
+    console.log("Fetched data", data);
 
-  if (data.error) {
-    document.getElementById("data").innerHTML = `<p>${data.error}</p>`;
-    document.getElementById("indicator").innerText = "Trend Indicator";
-    return;
-  }
+    if (data.error) {
+        document.getElementById("data").innerHTML = `<p>${data.error}</p>`;
+        document.getElementById("indicator").innerText = "Trend Indicator";
+        return;
+    }
 
-  let trendText = "";
-  if (data.current >= data.open) {
-    trendText = "📈 Uptrend";
-    document.getElementById("indicator").style.color = "green";
-  } else {
-    trendText = "📉 Downtrend";
-    document.getElementById("indicator").style.color = "red";
-  }
-  document.getElementById("indicator").innerText = trendText;
+    // Update Trend Indicator
+    let trendText = "";
+    if (data.current >= data.open) {
+        trendText = "📈 Uptrend";
+        document.getElementById("indicator").style.color = "green";
+    } else {
+        trendText = "📉 Downtrend";
+        document.getElementById("indicator").style.color = "red";
+    }
+    document.getElementById("indicator").innerText = trendText;
 
-  document.getElementById("data").innerHTML = `
-    <div class="card">
-      <h3>${data.symbol}</h3>
-      <p>Current: $${data.current}</p>
-      <p>Open: $${data.open}</p>
-      <p>High: $${data.high}</p>
-      <p>Low: $${data.low}</p>
-      <p>Previous Close: $${data.previous_close}</p>
-    </div>
-  `;
+    // Update Current OHLC Card
+    document.getElementById("data").innerHTML = `
+      <div class="card">
+        <h3>${data.symbol}</h3>
+        <p>Current: $${data.current}</p>
+        <p>Open: $${data.open}</p>
+        <p>High: $${data.high}</p>
+        <p>Low: $${data.low}</p>
+        <p>Previous Close: $${data.previous_close}</p>
+      </div>
+    `;
+
+    // Render 14 Candle History
+    renderHistory(data.history);
 }
 
-setInterval(getPrice,5000);
-window.onload=getPrice;
+function renderHistory(history) {
+    const container = document.getElementById("candleContainer");
+    container.innerHTML = "";  // clear old
+
+    if (!history || history.length === 0) {
+        container.innerHTML = "<p>No candle history yet...</p>";
+        return;
+    }
+
+    history.forEach((c, i) => {
+        const item = document.createElement("div");
+        item.classList.add("candle-item");
+
+        item.innerHTML = `
+          <h4>Candle ${i + 1}</h4>
+          <p>Time: ${c.time}</p>
+          <p>Open: ${c.open}</p>
+          <p>High: ${c.high}</p>
+          <p>Low: ${c.low}</p>
+          <p>Close: ${c.close}</p>
+        `;
+
+        container.appendChild(item);
+    });
+}
+
+setInterval(getPrice, 5000);
+window.onload = getPrice;
 </script>
-     </script>
+
 
 </body>
 </html>
